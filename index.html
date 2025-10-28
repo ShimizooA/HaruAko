@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>タイマー＆音声ループ (ランダム再生)</title>
+    <script src="https://unpkg.com/obniz@3.18.0/obniz.js"></script>
+    <style>
+      /* --- 基本設定 --- */
+      body {
+        /* (メイン背景色) */
+        background-color: #efeee5;
+
+        /* (メインの文字色) */
+        color: #998e77;
+
+        /* UIが美しく見えるモダンなフォントを指定 */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+
+        /* 画面全体に中央寄せ (以前のコードから流用) */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      /* --- ステータス表示 --- */
+      #status {
+        font-size: 1.5em;
+        font-weight: 600; /* 少し太くして存在感を出す */
+        margin-bottom: 25px; /* ボタンとの距離を確保 */
+        text-align: center;
+
+        /* (ステータス欄の背景色) */
+        background-color: #dfdacc;
+
+        padding: 20px 30px;
+        border-radius: 12px; /* 角を丸める */
+
+        /* 柔らかい影を落として立体感を出す */
+        box-shadow: 0 4px 12px rgba(153, 142, 119, 0.2);
+      }
+
+      /* --- ボタンの共通スタイル --- */
+      .button-container {
+        display: flex;
+        gap: 15px; /* ボタン同士の間隔 */
+      }
+
+      .button-container button {
+        font-size: 1.2em;
+        font-weight: bold; /* 文字を太く */
+        padding: 15px 35px; /* 余白を大きく */
+        cursor: pointer;
+        border: none; /* デフォルトの枠線を消す */
+        border-radius: 12px; /* 角を丸める */
+
+        /* 押した感覚を出すための影 */
+        box-shadow: 0 4px 15px rgba(153, 142, 119, 0.3);
+
+        /* ホバー時のアニメーション */
+        transition: all 0.2s ease-in-out;
+      }
+
+      /* ボタンホバー時（マウスが乗った時） */
+      .button-container button:not(:disabled):hover {
+        transform: translateY(-2px); /* 少し浮き上がる */
+        box-shadow: 0 6px 20px rgba(153, 142, 119, 0.35);
+      }
+
+      /* ボタンクリック時 */
+      .button-container button:not(:disabled):active {
+        transform: translateY(1px); /* 少し沈む */
+        box-shadow: 0 2px 8px rgba(153, 142, 119, 0.4);
+      }
+
+      /* --- スタートボタン --- */
+      #startButton {
+        /* (スタートボタンの色) */
+        background-color: #e2a99d;
+
+        /* (スタートボタンの文字色) */
+        color: #ffffff;
+      }
+
+      /* --- 停止ボタン --- */
+      #stopButton {
+        /* (ストップボタンの色) */
+        background-color: #d47e7e;
+        color: #ffffff;
+      }
+
+      /* --- 無効化されたボタン --- */
+      .button-container button:disabled {
+        /* (無効時の背景色) */
+        background-color: #dfdacc;
+
+        /* (無効時の文字色) */
+        color: #998e77;
+
+        opacity: 0.7;
+        cursor: not-allowed;
+        box-shadow: none; /* 無効時は影を消す */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">obnizに接続中...</div>
+    <div class="button-container">
+      <button id="startButton" disabled>接続待機中</button>
+      <button id="stopButton" disabled>ループ停止</button>
+    </div>
+
+    <script>
+      const obniz = new Obniz("2061-9919");
+      const catSoundUrls = [
+        "C:/Users/bi23037/OneDrive - Shizuoka University/ドキュメント/研究室/procon/voice/cat1.mp3",
+        "C:/Users/bi23037/OneDrive - Shizuoka University/ドキュメント/研究室/procon/voice/cat2.mp3",
+        "C:/Users/bi23037/OneDrive - Shizuoka University/ドキュメント/研究室/procon/voice/cat3.mp3",
+      ];
+      // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+      const startButton = document.getElementById("startButton");
+      const stopButton = document.getElementById("stopButton");
+      const statusDiv = document.getElementById("status");
+
+      let isLooping = false;
+
+      // ランダムに音声を再生する関数
+      function playRandomCatSound() {
+        // 0, 1, 2 のどれかのランダムな数字を生成
+        const index = Math.floor(Math.random() * catSoundUrls.length);
+
+        // 選ばれたURLで新しいAudioオブジェクトを作成して再生
+        const soundToPlay = new Audio(catSoundUrls[index]);
+        soundToPlay.play();
+      }
+      // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+      // obnizが接続されたら
+      obniz.onconnect = async () => {
+        statusDiv.textContent = "接続成功！";
+        statusDiv.textContent = "準備完了";
+        startButton.textContent = "ループスタート";
+        startButton.disabled = false;
+        stopButton.disabled = true;
+      };
+
+      // スタートボタンが押された時
+      startButton.onclick = async () => {
+        isLooping = true;
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        statusDiv.textContent = "ループ処理を開始します。";
+
+        while (isLooping) {
+          // 10秒待機
+          statusDiv.textContent = "10秒カウント中...";
+          await obniz.wait(10 * 1000);
+
+          if (!isLooping) break;
+
+          // 猫の鳴き声 ランダム再生
+          statusDiv.textContent = "ニャー！ (5秒休憩)";
+          playRandomCatSound();
+
+          // 3. 5秒待機
+          await obniz.wait(5 * 1000);
+
+          if (!isLooping) break;
+        }
+
+        // ループが終了した後の処理
+        statusDiv.textContent = "ループを停止しました。";
+        startButton.disabled = false;
+        stopButton.disabled = true;
+      };
+
+      // --- 停止ボタンが押された時の処理 ---
+      stopButton.onclick = () => {
+        isLooping = false;
+        statusDiv.textContent = "停止処理中... "; //現在の待機が終わり次第止まる
+        stopButton.disabled = true;
+      };
+
+      // obnizが切断されたら
+      obniz.onclose = () => {
+        isLooping = false;
+        statusDiv.textContent = "切断されました。";
+        startButton.textContent = "切断";
+        startButton.disabled = true;
+        stopButton.disabled = true;
+      };
+    </script>
+  </body>
+</html>

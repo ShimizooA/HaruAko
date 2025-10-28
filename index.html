@@ -116,12 +116,10 @@
 
     <script>
       const obniz = new Obniz("2061-9919");
-      const catSoundUrls = [
-        "C:/Users/bi23037/OneDrive - Shizuoka University/ドキュメント/研究室/procon/voice/cat1.mp3",
-        "C:/Users/bi23037/OneDrive - Shizuoka University/ドキュメント/研究室/procon/voice/cat2.mp3",
-        "C:/Users/bi23037/OneDrive - Shizuoka University/ドキュメント/研究室/procon/voice/cat3.mp3",
-      ];
-      // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+      const TOTAL_SOUND_FILES = 15;
+      const FILE_PREFIX = "./voice/cat";
+      const FILE_SUFFIX = ".mp3";
 
       const startButton = document.getElementById("startButton");
       const stopButton = document.getElementById("stopButton");
@@ -129,16 +127,17 @@
 
       let isLooping = false;
 
-      // ランダムに音声を再生する関数
       function playRandomCatSound() {
-        // 0, 1, 2 のどれかのランダムな数字を生成
-        const index = Math.floor(Math.random() * catSoundUrls.length);
+        // 1 から TOTAL_SOUND_FILES までのランダムな整数を生成
+        const index = Math.floor(Math.random() * TOTAL_SOUND_FILES) + 1;
+
+        // ファイル名を組み立て
+        const soundFile = FILE_PREFIX + index + FILE_SUFFIX;
 
         // 選ばれたURLで新しいAudioオブジェクトを作成して再生
-        const soundToPlay = new Audio(catSoundUrls[index]);
+        const soundToPlay = new Audio(soundFile);
         soundToPlay.play();
       }
-      // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
       // obnizが接続されたら
       obniz.onconnect = async () => {
@@ -164,7 +163,7 @@
           if (!isLooping) break;
 
           // 猫の鳴き声 ランダム再生
-          statusDiv.textContent = "ニャー！ (5秒休憩)";
+          statusDiv.textContent = "かまえにゃ";
           playRandomCatSound();
 
           // 3. 5秒待機

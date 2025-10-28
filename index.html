@@ -6,19 +6,14 @@
     <title>猫の手も借りたい(仮)</title>
     <script src="https://unpkg.com/obniz@3.18.0/obniz.js"></script>
     <style>
-      /* --- 基本設定 --- */
       body {
-        /* (メイン背景色) */
         background-color: #efeee5;
 
-        /* (メインの文字色) */
-        color: #998e77;
+        color: #998e77; /* 文字色 */
 
-        /* UIが美しく見えるモダンなフォントを指定 */
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
 
-        /* 画面全体に中央寄せ (以前のコードから流用) */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -27,83 +22,67 @@
         margin: 0;
       }
 
-      /* --- ステータス表示 --- */
+      /* ステータス表示*/
       #status {
         font-size: 1.5em;
-        font-weight: 600; /* 少し太くして存在感を出す */
-        margin-bottom: 25px; /* ボタンとの距離を確保 */
+        font-weight: 600;
+        margin-bottom: 25px;
         text-align: center;
 
-        /* (ステータス欄の背景色) */
         background-color: #dfdacc;
 
         padding: 20px 30px;
-        border-radius: 12px; /* 角を丸める */
+        border-radius: 12px;
 
-        /* 柔らかい影を落として立体感を出す */
         box-shadow: 0 4px 12px rgba(153, 142, 119, 0.2);
       }
 
-      /* --- ボタンの共通スタイル --- */
       .button-container {
         display: flex;
-        gap: 15px; /* ボタン同士の間隔 */
+        gap: 15px;
       }
 
       .button-container button {
         font-size: 1.2em;
-        font-weight: bold; /* 文字を太く */
-        padding: 15px 35px; /* 余白を大きく */
+        font-weight: bold;
+        padding: 15px 35px;
         cursor: pointer;
-        border: none; /* デフォルトの枠線を消す */
-        border-radius: 12px; /* 角を丸める */
+        border: none;
+        border-radius: 12px;
 
-        /* 押した感覚を出すための影 */
         box-shadow: 0 4px 15px rgba(153, 142, 119, 0.3);
 
-        /* ホバー時のアニメーション */
         transition: all 0.2s ease-in-out;
       }
 
-      /* ボタンホバー時（マウスが乗った時） */
       .button-container button:not(:disabled):hover {
         transform: translateY(-2px); /* 少し浮き上がる */
         box-shadow: 0 6px 20px rgba(153, 142, 119, 0.35);
       }
 
-      /* ボタンクリック時 */
       .button-container button:not(:disabled):active {
         transform: translateY(1px); /* 少し沈む */
         box-shadow: 0 2px 8px rgba(153, 142, 119, 0.4);
       }
 
-      /* --- スタートボタン --- */
       #startButton {
-        /* (スタートボタンの色) */
         background-color: #e2a99d;
-
-        /* (スタートボタンの文字色) */
         color: #ffffff;
       }
 
-      /* --- 停止ボタン --- */
       #stopButton {
-        /* (ストップボタンの色) */
         background-color: #d47e7e;
         color: #ffffff;
       }
 
-      /* --- 無効化されたボタン --- */
       .button-container button:disabled {
-        /* (無効時の背景色) */
         background-color: #dfdacc;
 
-        /* (無効時の文字色) */
         color: #998e77;
 
         opacity: 0.7;
         cursor: not-allowed;
-        box-shadow: none; /* 無効時は影を消す */
+        box-shadow: none;
       }
     </style>
   </head>

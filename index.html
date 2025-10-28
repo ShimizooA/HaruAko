@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>タイマー＆音声ループ (ランダム再生)</title>
+    <title>猫の手も借りたい(仮)</title>
     <script src="https://unpkg.com/obniz@3.18.0/obniz.js"></script>
     <style>
       /* --- 基本設定 --- */
@@ -108,10 +108,10 @@
     </style>
   </head>
   <body>
-    <div id="status">obnizに接続中...</div>
+    <div id="status">接続中...</div>
     <div class="button-container">
-      <button id="startButton" disabled>接続待機中</button>
-      <button id="stopButton" disabled>ループ停止</button>
+      <button id="startButton" disabled>作業をはじめる</button>
+      <button id="stopButton" disabled>作業をおえる</button>
     </div>
 
     <script>
@@ -131,7 +131,7 @@
         // 1 から TOTAL_SOUND_FILES までのランダムな整数を生成
         const index = Math.floor(Math.random() * TOTAL_SOUND_FILES) + 1;
 
-        // ファイル名を組み立て
+        // ファイル名を組み立てる
         const soundFile = FILE_PREFIX + index + FILE_SUFFIX;
 
         // 選ばれたURLで新しいAudioオブジェクトを作成して再生
@@ -142,53 +142,73 @@
       // obnizが接続されたら
       obniz.onconnect = async () => {
         statusDiv.textContent = "接続成功！";
-        statusDiv.textContent = "準備完了";
-        startButton.textContent = "ループスタート";
+
+        // モーターの設定
+        servo = obniz.wired("ServoMotor", {
+          signal: 0,
+          vcc: 1,
+          gnd: 2, // GND共通化
+        });
+
+        // モーターを初期位置(0度)へ
+        await servo.angle(0);
+
+        // 初期状態
+        statusDiv.textContent = "じゅんび完了";
+        startButton.textContent = "作業をはじめる";
         startButton.disabled = false;
         stopButton.disabled = true;
       };
 
-      // スタートボタンが押された時
+      // スタートボタンが押された時の処理
       startButton.onclick = async () => {
         isLooping = true;
         startButton.disabled = true;
         stopButton.disabled = false;
-        statusDiv.textContent = "ループ処理を開始します。";
+        statusDiv.textContent = "作業するのかにゃ";
 
         while (isLooping) {
-          // 10秒待機
-          statusDiv.textContent = "10秒カウント中...";
+          // 1. 10秒待機
+          statusDiv.textContent = "作業がんばり中";
           await obniz.wait(10 * 1000);
 
           if (!isLooping) break;
 
-          // 猫の鳴き声 ランダム再生
+          //　10秒後の動作
           statusDiv.textContent = "かまえにゃ";
-          playRandomCatSound();
-
-          // 3. 5秒待機
-          await obniz.wait(5 * 1000);
+          playRandomCatSound(); // PCで音声再生
+          await servo.angle(180);
+          await obniz.wait(3 * 1000);
+          statusDiv.textContent = "もういいにゃ";
+          await obniz.wait(2 * 1000);
 
           if (!isLooping) break;
+
+          await servo.angle(0);
+
+          // 4. ループの先頭に戻る
         }
 
         // ループが終了した後の処理
-        statusDiv.textContent = "ループを停止しました。";
+        statusDiv.textContent = "おつかれ";
         startButton.disabled = false;
         stopButton.disabled = true;
+
+        // 停止した時も、念のためモーターを初期位置に戻す
+        await servo.angle(0);
       };
 
       // --- 停止ボタンが押された時の処理 ---
       stopButton.onclick = () => {
         isLooping = false;
-        statusDiv.textContent = "停止処理中... "; //現在の待機が終わり次第止まる
+        statusDiv.textContent = "さっさとおわるにゃ";
         stopButton.disabled = true;
       };
 
       // obnizが切断されたら
       obniz.onclose = () => {
         isLooping = false;
-        statusDiv.textContent = "切断されました。";
+        statusDiv.textContent = "ばいばい";
         startButton.textContent = "切断";
         startButton.disabled = true;
         stopButton.disabled = true;
